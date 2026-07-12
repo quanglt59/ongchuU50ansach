@@ -5,11 +5,21 @@ import Link from "next/link";
 import { getAllProducts } from "@/lib/products";
 import { getAllOrders } from "@/lib/orders";
 import { formatVND } from "@/lib/format";
+import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
+
+const STATUS_ORDER: OrderStatus[] = ["pending", "confirmed", "shipping", "done", "cancelled"];
 
 export default function AdminDashboardPage() {
   const [productCount, setProductCount] = useState(0);
   const [visibleCount, setVisibleCount] = useState(0);
-  const [pendingOrders, setPendingOrders] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [statusCounts, setStatusCounts] = useState<Record<OrderStatus, number>>({
+    pending: 0,
+    confirmed: 0,
+    shipping: 0,
+    done: 0,
+    cancelled: 0,
+  });
   const [revenue, setRevenue] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -18,9 +28,16 @@ export default function AdminDashboardPage() {
       .then(([products, orders]) => {
         setProductCount(products.length);
         setVisibleCount(products.filter((p) => p.isVisible).length);
-        setPendingOrders(orders.filter((o) => o.status === "pending").length);
+        setTotalOrders(orders.length);
+        setStatusCounts({
+          pending: orders.filter((o) => o.status === "pending").length,
+          confirmed: orders.filter((o) => o.status === "confirmed").length,
+          shipping: orders.filter((o) => o.status === "shipping").length,
+          done: orders.filter((o) => o.status === "done").length,
+          cancelled: orders.filter((o) => o.status === "cancelled").length,
+        });
         setRevenue(
-          orders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.total, 0)
+          orders.filter((o) => o.status === "done").reduce((sum, o) => sum + o.total, 0)
         );
       })
       .finally(() => setLoading(false));
@@ -32,12 +49,25 @@ export default function AdminDashboardPage() {
       {loading ? (
         <p className="text-brand-500">Đang tải...</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-          <Stat label="Tổng sản phẩm" value={productCount} />
-          <Stat label="Đang hiển thị" value={visibleCount} />
-          <Stat label="Đơn chờ xác nhận" value={pendingOrders} />
-          <Stat label="Tổng doanh thu" value={formatVND(revenue)} />
-        </div>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <Stat label="Tổng sản phẩm" value={productCount} />
+            <Stat label="Đang hiển thị" value={visibleCount} />
+            <Stat label="Tổng đơn hàng" value={totalOrders} />
+            <Stat label="Doanh thu (đơn hoàn thành)" value={formatVND(revenue)} />
+          </div>
+
+          <p className="mb-3 mt-8 text-sm font-semibold text-brand-500">Đơn hàng theo trạng thái</p>
+          <div className="grid gap-4 sm:grid-cols-3 md:grid-cols-5">
+            {STATUS_ORDER.map((status) => (
+              <Stat
+                key={status}
+                label={ORDER_STATUS_LABELS[status]}
+                value={statusCounts[status]}
+              />
+            ))}
+          </div>
+        </>
       )}
       <div className="mt-8 flex gap-3">
         <Link
