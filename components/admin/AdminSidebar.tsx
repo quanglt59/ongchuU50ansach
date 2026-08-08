@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, ClipboardList, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ClipboardList, Mail, LogOut } from "lucide-react";
 import { useAdminAuth } from "@/lib/auth-context";
 
 const LINKS = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/admin/san-pham", label: "Sản phẩm", icon: Package },
   { href: "/admin/don-hang", label: "Đơn hàng", icon: ClipboardList },
+  { href: "/admin/lien-he", label: "Liên hệ", icon: Mail },
 ];
 
 export default function AdminSidebar() {

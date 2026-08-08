@@ -8,6 +8,7 @@ import { useCart } from "@/lib/cart-context";
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ" },
   { href: "/san-pham", label: "Sản phẩm" },
+  { href: "/lien-he", label: "Liên hệ" },
 ];
 
 export default function Header() {

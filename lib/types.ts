@@ -79,3 +79,14 @@ export interface Order {
 }
 
 export type NewOrder = Omit<Order, "id" | "createdAt" | "status">;
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  content: string;
+  createdAt: number;
+}
+
+export type NewContactMessage = Omit<ContactMessage, "id" | "createdAt">;
